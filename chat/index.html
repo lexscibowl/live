@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ChatApp" ng-controller="ChatCtrl">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+	<meta name="description" content="Vocative: The student-run class discussion platform">
+	<meta name="copyright" content="Clive Chan, 2015">
+	<meta name="author" content="Clive Chan (http://clive.io)">
+	
+	<title ng-bind="style.title + ' | Vocative'">Vocative</title>
+	
+	<!--
+		Todos
+		Multi-line messages - when you get to a new line, the box expands upward beyond the edge of the footer
+		Subdiscussions
+		Infinite-scrolling
+		Admin - moderation (?), stickies, save as file
+		message timestamps
+	-->
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.css">
+	<link rel="stylesheet" href="/chat/style.css">
+</head>
+<body ng-class="{admin:admin}">
+	<div id="wrapper">
+		<header ng-style="{'background-color':style.bgcolor}">
+			<span class="logos">
+				<a id="logo" href="https://vocative.github.io/index.html" ng-href="../index.html?room={{room}}"><span class="wider">Vocative</span><span class="narrower">&lt;</span></a>
+			</span>
+			<span class="msg-filter">
+				<input type="text" id="msg-filter-input" class="matdes lightbg" placeholder="filter..." ng-model="msgfilter">
+			</span>
+			<span class="admin-drawer-icon" ng-show="admin"><span class="subelem"></span></span>
+			<h1><a ng-href="?room={{room}}" ng-bind="style.title"></a></h1>
+		</header>
+		<div id="admin-drawer" class="slidout" ng-show="admin">
+			<span class="x-out">&#10060;</span>
+			<h2>Admin Tools</h2>
+			<ul>
+				<li><label>Room Title: <input type="text" class="matdes lightbg" placeholder="Some Class 101" ng-model="style.title"></label></li>
+				<li><label>Theme Color: <input type="text" class="matdes lightbg" placeholder="deepskyblue" ng-model="style.bgcolor"></label></li>
+				<li><a ng-href="https://socsem.firebaseio.com/{{room}}/messages.json">Download Chats</a> (you probably don't want this)</li>
+				<li><label>Lock: <input type="checkbox" ng-model="style.locked">
+			</ul>
+		</div>
+		<main>
+			<div id="smoothalerts"></div>
+			<ul id="messages">
+				<div id="msgwrap">
+					<li id="loadmsg" class="message" ng-hide="loaded">Loading</li>
+					<li id="nomsgmsg" class="message" ng-show="loaded && messages.length == 0">no messages</li>
+					<div>
+						<li class="message" ng-repeat="(index,message) in messages" ng-show="!msgfilter || !msgfilter.length || message.from.toLowerCase().indexOf(msgfilter.toLowerCase()) > -1 || message.content.toLowerCase().indexOf(msgfilter.toLowerCase()) > -1" ng-class="{firstline:messages[index-1].from!=message.from}">
+							<span class="from" ng-show="messages[index-1].from != message.from">{{ message.from }}</span>
+							<span ng-attr-title="{{message.timestamp | date:'h:mm:ss a, MM/dd/yyyy'}}">
+								<span class="time" ng-show="!!message.timestamp && 
+									((messages[index-1].timestamp | moment) != (message.timestamp | moment) || 
+									messages[index-1].from != message.from)">
+									{{message.timestamp | moment}}
+								</span>
+								<span class="content" ng-bind-html="message.content | linkify:'_blank':{title:'opens in new window'}" ng-style="{'font-weight':message.admin?'bold':'normal'}"></span>
+							</span>
+						</li>
+					</div>
+				</div>
+			</ul>
+			<span id="newmsgalert">new messages</span>
+		</main>
+		<footer ng-style="{'background-color':style.bgcolor}">
+			<label ng-attr-for="{{username.length?'newmsg':'username'}}" ng-hide="style.locked" id="footermsg">Message</label>
+			<form ng-submit="addMessage()" ng-hide="style.locked" autocomplete="off">
+				<input id="username" class="matdes darkbg" ng-model="username" type="text" placeholder="Name...">
+				<input id="newmsg" class="matdes darkbg" ng-model="newmsg" type="text" placeholder="Message...">
+				<input type="submit" value="&#10148;">
+			</form>
+			<h2 ng-show="style.locked">This room is currently locked</h2>
+		</footer>
+	</div>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-sanitize.js"></script>
+	<script src="/chat/sanitize.js"></script>
+	<script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
+	<script src="https://cdn.firebase.com/libs/angularfire/1.1.3/angularfire.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.min.js"></script>
+	<script src="/chat/linkify.min.js"></script>
+	<script src="/chat/ng-linkify.js"></script>
+	<script src="/chat/app.js"></script>
+</body>
+</html>
