@@ -9,6 +9,10 @@ http.listen(PORT, function(){
 });
 
 app.get('/chat', function(req, res){
-  res.sendFile(__dirname + '/chat/index.html')
+  res.sendFile(__dirname + '/chat/index.html');
 });
 app.use('/chat',express.static(__dirname + '/chat'));
+
+app.get(/\/round\/([0-9]+)/, function(req, res){
+  res.sendFile(__dirname + '/round/' + req.params[0] + '.pdf');
+});

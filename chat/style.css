@@ -221,7 +221,7 @@ main {
       main ul#messages li.message .content {
         margin-left: 0.5em; }
       main ul#messages li.message.firstline {
-        padding-top: 1em; }
+        margin-top: 1em; }
 
 input.matdes {
   background-color: transparent;
